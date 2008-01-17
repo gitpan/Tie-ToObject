@@ -3,19 +3,27 @@
 package Tie::ToObject;
 
 use strict;
-use warnings;
+#use warnings;
 
-our $VERSION = "0.02";
+use vars qw($VERSION $AUTOLOAD);
+
+use Carp qw(croak);
+use Scalar::Util qw(blessed);
+
+$VERSION = "0.03";
 
 sub AUTOLOAD {
 	my ( $self, $tied ) = @_;
-	my ( $method ) = ( our $AUTOLOAD =~ /([^:]+)$/ );
+	my ( $method ) = ( $AUTOLOAD =~ /([^:]+)$/ );
 
 	if ( $method =~ /^TIE/ ) {
-		return $tied;
+		if ( blessed($tied) ) {
+			return $tied;
+		} else {
+			croak "You must supply an object as the argument to tie()";
+		}
 	} else {
-		require Carp;
-		die "Unsupported method for $method, this module is only for tying to existing objects";
+		croak "Unsupported method for $method, this module is only for tying to existing objects";
 	}
 }
 
